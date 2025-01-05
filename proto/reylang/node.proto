@@ -1,0 +1,71 @@
+syntax="proto3";
+
+package ramonberrutti.reylang;
+
+// Node is the base type for all nodes in the AST.
+message Node {
+  oneof node_type {
+    LiteralNode literal_node = 1;
+    IdentifierNode identifier_node = 2;
+    IfNode if_node = 3;
+    ForNode for_node = 4;
+    ForRangeNode for_range_node = 5;
+    ComparisonNode comparison_node = 6;
+    FunctionCallNode function_call_node = 7;
+  }
+}
+
+message LiteralNode {
+  oneof literal_type {
+    string string = 1;
+    int32 integer = 2;
+    float float = 3;
+    bool boolean = 4;
+  }
+}
+
+message IdentifierNode {
+  string name = 1;
+}
+
+message IfNode {
+  ComparisonNode condition = 1;
+  repeated Node body = 2;
+  repeated Node else_body = 3;
+}
+
+// Going to generate the ForRangeNode from the ForNode.
+message ForNode {
+  Node initializer = 1;
+  Node condition = 2;
+  Node increment = 3;
+  repeated Node body = 4;
+}
+
+message ForRangeNode {
+  IdentifierNode key = 1;
+  IdentifierNode value = 2;
+  IdentifierNode collection = 3;
+  repeated Node body = 4;
+}
+
+message ComparisonNode {
+  Node left = 1;
+  Node right = 2;
+
+  enum Operator {
+    OPERATOR_NONE = 0;
+    OPERATOR_EQ = 1;
+    OPERATOR_NE = 2;
+    OPERATOR_LT = 3;
+    OPERATOR_LE = 4;
+    OPERATOR_GT = 5;
+    OPERATOR_GE = 6;
+  }
+  Operator operator = 3;
+}
+
+message FunctionCallNode {
+  IdentifierNode name = 1;
+  repeated Node arguments = 2;
+}

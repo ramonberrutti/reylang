@@ -1,0 +1,6 @@
+syntax="proto3";
+package ramonberrutti.reylang;
+
+enum OpCode {
+  OP_NONE = 0;
+}
