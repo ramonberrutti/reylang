@@ -3,7 +3,7 @@ package reylang_test
 import (
 	"testing"
 
-	reylangpb "github.com/ramonberrutti/reylang/protogen/proto/reylang"
+	reylangpb "github.com/ramonberrutti/reylang/protogen/reylang"
 )
 
 func TestCompiler(t *testing.T) {

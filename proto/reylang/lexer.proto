@@ -1,0 +1,20 @@
+syntax="proto3";
+package ramonberrutti.reylang;
+
+enum TokenType {
+  UNKNOWN = 0;
+  KEYWORD = 1;
+  IDENTIFIER = 2;
+  STRING = 3;
+  INTEGER = 4;
+  FLOAT = 5;
+  BOOLEAN = 6;
+  OPERATOR = 7;
+  PUNCTUATION = 8;
+}
+
+message Token {
+  TokenType token = 1;
+  string value = 2;
+}
+
