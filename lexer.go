@@ -79,7 +79,21 @@ func (l *Lexer) NextToken() *reylangpb.Token {
 				Token: reylangpb.TokenType_OPERATOR,
 				Value: operator,
 			}
-		} else if strings.ContainsRune(",:{}()[]", ch) {
+		} else if ch == ':' {
+			// check if next is '='
+			if l.peek() == '=' {
+				l.next()
+				return &reylangpb.Token{
+					Token: reylangpb.TokenType_OPERATOR,
+					Value: ":=",
+				}
+			} else {
+				return &reylangpb.Token{
+					Token: reylangpb.TokenType_PUNCTUATION,
+					Value: ":",
+				}
+			}
+		} else if strings.ContainsRune(",{}()[]", ch) {
 			return &reylangpb.Token{
 				Token: reylangpb.TokenType_PUNCTUATION,
 				Value: string(ch),
