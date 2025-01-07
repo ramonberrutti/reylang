@@ -16,11 +16,11 @@ message Node {
 }
 
 message LiteralNode {
-  oneof literal_type {
-    string string = 1;
-    int32 integer = 2;
-    float float = 3;
-    bool boolean = 4;
+  oneof value {
+    string string_value = 1;
+    int32 integer_value = 2;
+    float float_value = 3;
+    bool boolean_value = 4;
   }
 }
 

@@ -3,4 +3,15 @@ package ramonberrutti.reylang;
 
 enum OpCode {
   NONE = 0;
+  HALT = 1;
+  ITER_START = 2;
+  ITER_NEXT = 3;
+  ITER_END = 4;
+  LOAD_CONST = 5;
+  LOAD_VAR = 6;
+  JUMP = 7;
+  JUMP_IF_FALSE = 8;
+  CALL = 9;
+  RETURN = 10;
+  COMPARE = 11;
 }

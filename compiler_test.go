@@ -3,6 +3,7 @@ package reylang_test
 import (
 	"testing"
 
+	"github.com/ramonberrutti/reylang"
 	reylangpb "github.com/ramonberrutti/reylang/protogen/reylang"
 )
 
@@ -35,8 +36,8 @@ func TestCompiler(t *testing.T) {
 									Right: &reylangpb.Node{
 										NodeType: &reylangpb.Node_LiteralNode{
 											LiteralNode: &reylangpb.LiteralNode{
-												LiteralType: &reylangpb.LiteralNode_String_{
-													String_: "123",
+												Value: &reylangpb.LiteralNode_StringValue{
+													StringValue: "123",
 												},
 											},
 										},
@@ -51,11 +52,9 @@ func TestCompiler(t *testing.T) {
 												},
 												Arguments: []*reylangpb.Node{
 													{
-														NodeType: &reylangpb.Node_LiteralNode{
-															LiteralNode: &reylangpb.LiteralNode{
-																LiteralType: &reylangpb.LiteralNode_String_{
-																	String_: "match.id",
-																},
+														NodeType: &reylangpb.Node_IdentifierNode{
+															IdentifierNode: &reylangpb.IdentifierNode{
+																Name: "match.id",
 															},
 														},
 													},
@@ -73,5 +72,11 @@ func TestCompiler(t *testing.T) {
 	}
 
 	_ = ast
+	compiler := reylang.NewCompiler()
+	compiler.Compile(ast)
 
+	bytecode := compiler.Bytecode()
+	for i, instr := range bytecode {
+		t.Logf("Instruction %d: %s: %v", i, instr.Code, instr.Operand)
+	}
 }

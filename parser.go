@@ -305,8 +305,8 @@ func (p *Parser) parseLiteral() (*reylangpb.Node, error) {
 		return &reylangpb.Node{
 			NodeType: &reylangpb.Node_LiteralNode{
 				LiteralNode: &reylangpb.LiteralNode{
-					LiteralType: &reylangpb.LiteralNode_String_{
-						String_: p.peek().Value,
+					Value: &reylangpb.LiteralNode_StringValue{
+						StringValue: p.peek().Value,
 					},
 				},
 			},
@@ -321,8 +321,8 @@ func (p *Parser) parseLiteral() (*reylangpb.Node, error) {
 		return &reylangpb.Node{
 			NodeType: &reylangpb.Node_LiteralNode{
 				LiteralNode: &reylangpb.LiteralNode{
-					LiteralType: &reylangpb.LiteralNode_Integer{
-						Integer: int32(val),
+					Value: &reylangpb.LiteralNode_IntegerValue{
+						IntegerValue: int32(val),
 					},
 				},
 			},
@@ -337,8 +337,8 @@ func (p *Parser) parseLiteral() (*reylangpb.Node, error) {
 		return &reylangpb.Node{
 			NodeType: &reylangpb.Node_LiteralNode{
 				LiteralNode: &reylangpb.LiteralNode{
-					LiteralType: &reylangpb.LiteralNode_Float{
-						Float: float32(val),
+					Value: &reylangpb.LiteralNode_FloatValue{
+						FloatValue: float32(val),
 					},
 				},
 			},
@@ -353,8 +353,8 @@ func (p *Parser) parseLiteral() (*reylangpb.Node, error) {
 		return &reylangpb.Node{
 			NodeType: &reylangpb.Node_LiteralNode{
 				LiteralNode: &reylangpb.LiteralNode{
-					LiteralType: &reylangpb.LiteralNode_Boolean{
-						Boolean: val,
+					Value: &reylangpb.LiteralNode_BooleanValue{
+						BooleanValue: val,
 					},
 				},
 			},

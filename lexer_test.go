@@ -9,9 +9,9 @@ import (
 
 func TestLexer(t *testing.T) {
 	code := `
-	for i, match := range matches {
-		if match.Id == "123" {
-			golangFunction(match.Id)
+	for _, match := range matches {
+		if match.id == "123" {
+			golangFunction(match.id)
 		}
 	}
 `
