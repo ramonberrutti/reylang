@@ -1,0 +1,19 @@
+syntax="proto3";
+package ramonberrutti.reylang;
+
+import "reylang/opcode.proto";
+import "google/protobuf/struct.proto";
+
+message Bytecode {
+  repeated Instruction instructions = 1;
+}
+
+message Instruction {
+  OpCode opcode = 1;
+
+  oneof operand {
+    int32 integer_operand = 3;
+    string string_operand = 4;
+    google.protobuf.ListValue struct_operand = 5;
+  }
+}
