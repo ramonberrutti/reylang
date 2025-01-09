@@ -10,9 +10,11 @@ import (
 
 func TestReyLang(t *testing.T) {
 	code := `
+	sayHello("Ramon")
 	for _, match := range matches {
 		if match.id == "123" {
-			golangFunction(match.id)
+			golangFunction(match.name)
+			sayHello(match.name)
 		}
 	}
 `
@@ -44,13 +46,27 @@ func TestReyLang(t *testing.T) {
 	}
 
 	vm := reylang.NewVM([]any{
+		"Ramon",
 		"123",
 	})
 
 	vm.SetSymbol("matches", []any{
 		map[string]any{
-			"id": "123",
+			"id":   "123",
+			"name": "Ramon",
 		},
+		map[string]any{
+			"id":   "123",
+			"name": "Ramon2",
+		},
+	})
+	vm.SetSymbol("golangFunction", func(args ...any) any {
+		t.Logf("Calling golangFunction with args: %v", args)
+		return nil
+	})
+	vm.SetSymbol("sayHello", func(args ...any) any {
+		t.Logf("Calling sayHello with args: %v", args)
+		return nil
 	})
 
 	vm.Run(bytecode)

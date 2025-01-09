@@ -12,6 +12,7 @@ message Node {
     ForRangeNode for_range_node = 5;
     ComparisonNode comparison_node = 6;
     FunctionCallNode function_call_node = 7;
+    Nodes nodes_node = 8;
   }
 }
 
@@ -30,8 +31,8 @@ message IdentifierNode {
 
 message IfNode {
   ComparisonNode condition = 1;
-  repeated Node body = 2;
-  repeated Node else_body = 3;
+  repeated Node body = 2; // TODO: use nodes_node
+  repeated Node else_body = 3; // TODO: use nodes_node
 }
 
 // Going to generate the ForRangeNode from the ForNode.
@@ -39,14 +40,14 @@ message ForNode {
   Node initializer = 1;
   Node condition = 2;
   Node increment = 3;
-  repeated Node body = 4;
+  repeated Node body = 4; // TODO: use nodes_node
 }
 
 message ForRangeNode {
   IdentifierNode key = 1;
   IdentifierNode value = 2;
   IdentifierNode collection = 3;
-  repeated Node body = 4;
+  repeated Node body = 4; // TODO: use nodes_node
 }
 
 message ComparisonNode {
@@ -68,4 +69,8 @@ message ComparisonNode {
 message FunctionCallNode {
   IdentifierNode name = 1;
   repeated Node arguments = 2;
+}
+
+message Nodes {
+  repeated Node nodes = 1;
 }

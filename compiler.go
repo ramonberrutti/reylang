@@ -34,6 +34,10 @@ func (c *Compiler) Compile(node *reylangpb.Node) {
 		c.emit(reylangpb.OpCode_LOAD_VAR, n.IdentifierNode.Name)
 	case *reylangpb.Node_LiteralNode:
 		c.compileLiteral(n.LiteralNode)
+	case *reylangpb.Node_NodesNode:
+		for _, child := range n.NodesNode.Nodes {
+			c.Compile(child)
+		}
 	}
 }
 

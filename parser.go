@@ -30,7 +30,24 @@ func (p *Parser) next() *reylangpb.Token {
 }
 
 func (p *Parser) Parse() (*reylangpb.Node, error) {
-	return p.parse()
+	nodes := []*reylangpb.Node{}
+
+	for p.peek() != nil {
+		node, err := p.parse()
+		if err != nil {
+			return nil, err
+		}
+
+		nodes = append(nodes, node)
+	}
+
+	return &reylangpb.Node{
+		NodeType: &reylangpb.Node_NodesNode{
+			NodesNode: &reylangpb.Nodes{
+				Nodes: nodes,
+			},
+		},
+	}, nil
 }
 
 func (p *Parser) parse() (*reylangpb.Node, error) {
@@ -43,6 +60,8 @@ func (p *Parser) parse() (*reylangpb.Node, error) {
 	case peek.Token == reylangpb.TokenType_IDENTIFIER:
 		return p.parseIdentifier()
 	// Add more cases here
+	case peek.Token == reylangpb.TokenType_STRING:
+		return p.parseLiteral()
 	default:
 		return nil, fmt.Errorf("unexpected token: %v", p.peek())
 	}

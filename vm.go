@@ -67,8 +67,15 @@ func (vm *VM) Run(bytecode []Instruction) {
 		case reylang.OpCode_CALL:
 			// grab from the symbols table
 			fmt.Printf("Calling %+v\n", i.Operand)
+			funcName := i.Operand.(string)
 
-			fmt.Println(vm.pop())
+			f, ok := vm.symbols[funcName].(func(...any) any)
+			if !ok {
+				panic("function not found")
+			}
+
+			arg := vm.pop()
+			f(arg)
 
 		case reylang.OpCode_COMPARE:
 			right := vm.pop()

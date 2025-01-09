@@ -19,6 +19,10 @@ func TestVM(t *testing.T) {
 			"id": "123",
 		},
 	})
+	vm.SetSymbol("print", func(args ...any) any {
+		t.Logf("Print: %v", args)
+		return nil
+	})
 	_ = vm
 
 	vm.Run([]reylang.Instruction{
