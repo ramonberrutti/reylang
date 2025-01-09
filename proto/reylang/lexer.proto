@@ -2,19 +2,30 @@ syntax="proto3";
 package ramonberrutti.reylang;
 
 enum TokenType {
-  UNKNOWN = 0;
-  KEYWORD = 1;
-  IDENTIFIER = 2;
-  STRING = 3;
-  INTEGER = 4;
-  FLOAT = 5;
-  BOOLEAN = 6;
-  OPERATOR = 7;
+  UNKNOWN = 0; // unknown token
+  KEYWORD = 1; // if, else, for, while, return, etc.
+  IDENTIFIER = 2; // variable names, function names, etc.
+  STRING = 3; // "string"
+  INTEGER = 4; // 1
+  FLOAT = 5; // 1.0
+  BOOLEAN = 6; // true or false
+  OPERATOR = 7; // + - * / % == != < <= > >= && || ! & | ^ << >> ~
   PUNCTUATION = 8;
+  LPAREN = 9; // (
+  RPAREN = 10; // )
+  LBRACE = 11; // {
+  RBRACE = 12; // }
+  LBRACKET = 13; // [
+  RBRACKET = 14; // ]
+  COMMA = 15; // ,
+  DECLARATION = 16; // :=
+  ASSIGNMENT = 17; // =
+  SEMICOLON = 18; // ;
 }
 
 message Token {
   TokenType token = 1;
   string value = 2;
+  uint32 position = 3;
 }
 

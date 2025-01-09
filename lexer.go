@@ -11,6 +11,7 @@ import (
 type Lexer struct {
 	reader io.Reader
 	buf    [1]byte
+	pos    uint32
 }
 
 func NewLexer(reader io.Reader) *Lexer {
@@ -20,6 +21,7 @@ func NewLexer(reader io.Reader) *Lexer {
 func (l *Lexer) next() rune {
 	r := l.peek()
 	n, err := l.reader.Read(l.buf[:])
+	l.pos += uint32(n)
 	if err != nil || n == 0 {
 		return 0
 	}
@@ -44,64 +46,104 @@ func (l *Lexer) NextToken() *reylangpb.Token {
 			return nil
 		}
 
-		if unicode.IsSpace(ch) {
-			continue // skip whitespace
-		}
+		pos := l.pos
 
-		if unicode.IsLetter(ch) {
+		switch {
+		case unicode.IsSpace(ch):
+			continue
+		case unicode.IsLetter(ch) || ch == '_':
 			identifier := l.readIdentifier(ch)
 			if isKeyword(identifier) {
 				return &reylangpb.Token{
-					Token: reylangpb.TokenType_KEYWORD,
-					Value: identifier,
+					Token:    reylangpb.TokenType_KEYWORD,
+					Value:    identifier,
+					Position: pos,
 				}
 			} else {
 				return &reylangpb.Token{
-					Token: reylangpb.TokenType_IDENTIFIER,
-					Value: identifier,
+					Token:    reylangpb.TokenType_IDENTIFIER,
+					Value:    identifier,
+					Position: pos,
 				}
 			}
-		} else if unicode.IsDigit(ch) {
+		case unicode.IsDigit(ch):
 			number := l.readNumber(ch)
 			return &reylangpb.Token{
-				Token: reylangpb.TokenType_INTEGER,
-				Value: number,
+				Token:    reylangpb.TokenType_INTEGER,
+				Value:    number,
+				Position: pos,
 			}
-		} else if ch == '"' {
+
+		case ch == '"':
 			str := l.readString()
 			return &reylangpb.Token{
-				Token: reylangpb.TokenType_STRING,
-				Value: str,
+				Token:    reylangpb.TokenType_STRING,
+				Value:    str,
+				Position: pos,
 			}
-		} else if strings.ContainsRune("=<>!+-*/", ch) {
-			operator := l.readOperator(ch)
-			return &reylangpb.Token{
-				Token: reylangpb.TokenType_OPERATOR,
-				Value: operator,
-			}
-		} else if ch == ':' {
+
+		case ch == ':':
 			// check if next is '='
 			if l.peek() == '=' {
 				l.next()
 				return &reylangpb.Token{
-					Token: reylangpb.TokenType_OPERATOR,
-					Value: ":=",
+					Token:    reylangpb.TokenType_DECLARATION,
+					Position: pos,
 				}
 			} else {
 				return &reylangpb.Token{
-					Token: reylangpb.TokenType_PUNCTUATION,
-					Value: ":",
+					Token:    reylangpb.TokenType_PUNCTUATION,
+					Value:    ":",
+					Position: pos,
 				}
 			}
-		} else if strings.ContainsRune(",{}()[]", ch) {
+		case ch == ',':
 			return &reylangpb.Token{
-				Token: reylangpb.TokenType_PUNCTUATION,
-				Value: string(ch),
+				Token:    reylangpb.TokenType_COMMA,
+				Position: pos,
 			}
-		} else {
+		case ch == '{':
 			return &reylangpb.Token{
-				Token: reylangpb.TokenType_UNKNOWN,
-				Value: string(ch),
+				Token:    reylangpb.TokenType_LBRACE,
+				Position: pos,
+			}
+		case ch == '}':
+			return &reylangpb.Token{
+				Token:    reylangpb.TokenType_RBRACE,
+				Position: pos,
+			}
+		case ch == '(':
+			return &reylangpb.Token{
+				Token:    reylangpb.TokenType_LPAREN,
+				Position: pos,
+			}
+		case ch == ')':
+			return &reylangpb.Token{
+				Token:    reylangpb.TokenType_RPAREN,
+				Position: pos,
+			}
+		case ch == '[':
+			return &reylangpb.Token{
+				Token:    reylangpb.TokenType_LBRACKET,
+				Position: pos,
+			}
+		case ch == ']':
+			return &reylangpb.Token{
+				Token:    reylangpb.TokenType_RBRACKET,
+				Position: pos,
+			}
+		case strings.ContainsRune("=<>!+-*/", ch):
+			operator := l.readOperator(ch)
+			return &reylangpb.Token{
+				Token:    reylangpb.TokenType_OPERATOR,
+				Value:    operator,
+				Position: pos,
+			}
+		default:
+			return &reylangpb.Token{
+				Token:    reylangpb.TokenType_UNKNOWN,
+				Value:    string(ch),
+				Position: pos,
 			}
 		}
 	}

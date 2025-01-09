@@ -29,28 +29,18 @@ func (p *Parser) next() *reylangpb.Token {
 	return p.peek()
 }
 
-func (p *Parser) match(tokenTypes ...reylangpb.TokenType) bool {
-	if p.peek() != nil {
-		for _, t := range tokenTypes {
-			if p.peek().Token == t {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 func (p *Parser) Parse() (*reylangpb.Node, error) {
 	return p.parse()
 }
 
 func (p *Parser) parse() (*reylangpb.Node, error) {
+	peek := p.peek()
 	switch {
-	case p.match(reylangpb.TokenType_KEYWORD) && p.peek().Value == "for":
+	case peek.Token == reylangpb.TokenType_KEYWORD && peek.Value == "for":
 		return p.parseFor()
-	case p.match(reylangpb.TokenType_KEYWORD) && p.peek().Value == "if":
+	case peek.Token == reylangpb.TokenType_KEYWORD && p.peek().Value == "if":
 		return p.parseIf()
-	case p.match(reylangpb.TokenType_IDENTIFIER):
+	case peek.Token == reylangpb.TokenType_IDENTIFIER:
 		return p.parseIdentifier()
 	// Add more cases here
 	default:
@@ -61,22 +51,23 @@ func (p *Parser) parse() (*reylangpb.Node, error) {
 func (p *Parser) parseFor() (*reylangpb.Node, error) {
 	p.next() // Skip "for"
 
-	if !p.match(reylangpb.TokenType_IDENTIFIER) {
+	if p.peek().Token != reylangpb.TokenType_IDENTIFIER {
 		return nil, fmt.Errorf("expected identifier after 'for'")
 	}
+
 	key := &reylangpb.IdentifierNode{
 		Name: p.peek().Value,
 	}
 
 	p.next() // Skip key
 
-	if !p.match(reylangpb.TokenType_PUNCTUATION) || p.peek().Value != "," {
+	if p.peek().Token != reylangpb.TokenType_COMMA {
 		return nil, fmt.Errorf("expected ',' after key")
 	}
 
 	p.next() // Skip ","
 
-	if !p.match(reylangpb.TokenType_IDENTIFIER) {
+	if p.peek().Token != reylangpb.TokenType_IDENTIFIER {
 		return nil, fmt.Errorf("expected identifier after 'for'")
 	}
 	value := &reylangpb.IdentifierNode{
@@ -85,19 +76,19 @@ func (p *Parser) parseFor() (*reylangpb.Node, error) {
 
 	p.next() // Skip value
 
-	if !p.match(reylangpb.TokenType_PUNCTUATION) || p.peek().Value != ":=" {
+	if p.peek().Token != reylangpb.TokenType_DECLARATION {
 		return nil, fmt.Errorf("expected ':=' after value")
 	}
 
 	p.next() // Skip ":="
 
-	if !p.match(reylangpb.TokenType_KEYWORD) || p.peek().Value != "range" {
+	if p.peek().Token != reylangpb.TokenType_KEYWORD || p.peek().Value != "range" {
 		return nil, fmt.Errorf("expected 'range' after ':='")
 	}
 
 	p.next() // Skip "range"
 
-	if !p.match(reylangpb.TokenType_IDENTIFIER) {
+	if p.peek().Token != reylangpb.TokenType_IDENTIFIER {
 		return nil, fmt.Errorf("expected identifier after 'range'")
 	}
 	collection := &reylangpb.IdentifierNode{
@@ -106,14 +97,14 @@ func (p *Parser) parseFor() (*reylangpb.Node, error) {
 
 	p.next() // Skip collection
 
-	if !p.match(reylangpb.TokenType_PUNCTUATION) || p.peek().Value != "{" {
+	if p.peek().Token != reylangpb.TokenType_LBRACE {
 		return nil, fmt.Errorf("expected '{' after condition")
 	}
 
 	p.next() // Skip "{"
 
 	body := []*reylangpb.Node{}
-	for !p.match(reylangpb.TokenType_PUNCTUATION) || p.peek().Value != "}" {
+	for p.peek().Token != reylangpb.TokenType_RBRACE {
 		node, err := p.parse()
 		if err != nil {
 			return nil, err
@@ -143,14 +134,14 @@ func (p *Parser) parseIf() (*reylangpb.Node, error) {
 		return nil, err
 	}
 
-	if !p.match(reylangpb.TokenType_PUNCTUATION) || p.peek().Value != "{" {
+	if p.peek().Token != reylangpb.TokenType_LBRACE {
 		return nil, fmt.Errorf("expected '{' after condition")
 	}
 
 	p.next() // Skip "{"
 
 	body := []*reylangpb.Node{}
-	for !p.match(reylangpb.TokenType_PUNCTUATION) || p.peek().Value != "}" {
+	for p.peek().Token != reylangpb.TokenType_RBRACE {
 		node, err := p.parse()
 		if err != nil {
 			return nil, err
@@ -161,15 +152,15 @@ func (p *Parser) parseIf() (*reylangpb.Node, error) {
 	p.next() // Skip "}"
 
 	elseBody := []*reylangpb.Node{}
-	if p.match(reylangpb.TokenType_KEYWORD) && p.peek().Value == "else" {
+	if p.peek().Token == reylangpb.TokenType_KEYWORD && p.peek().Value == "else" {
 		p.next() // Skip "else"
-		if !p.match(reylangpb.TokenType_PUNCTUATION) || p.peek().Value != "{" {
+		if p.peek().Token != reylangpb.TokenType_LBRACE {
 			return nil, fmt.Errorf("expected '{' after 'else'")
 		}
 
 		p.next() // Skip "{"
 
-		for !p.match(reylangpb.TokenType_PUNCTUATION) || p.peek().Value != "}" {
+		for p.peek().Token != reylangpb.TokenType_RBRACE {
 			node, err := p.parse()
 			if err != nil {
 				return nil, err
@@ -207,7 +198,7 @@ func (p *Parser) parseExpression() (*reylangpb.Node, error) {
 	}
 
 	// parse operator
-	if !p.match(reylangpb.TokenType_OPERATOR) {
+	if p.peek().Token != reylangpb.TokenType_OPERATOR {
 		return nil, fmt.Errorf("expected operator")
 	}
 	var operator reylangpb.ComparisonNode_Operator
@@ -254,7 +245,7 @@ func (p *Parser) parseExpression() (*reylangpb.Node, error) {
 }
 
 func (p *Parser) parseIdentifier() (*reylangpb.Node, error) {
-	if !p.match(reylangpb.TokenType_IDENTIFIER) {
+	if p.peek().Token != reylangpb.TokenType_IDENTIFIER {
 		return nil, fmt.Errorf("expected identifier")
 	}
 	identifierNode := &reylangpb.IdentifierNode{
@@ -264,17 +255,17 @@ func (p *Parser) parseIdentifier() (*reylangpb.Node, error) {
 	p.next() // Skip identifier
 
 	// check if it's a function call
-	if p.peek().Token == reylangpb.TokenType_PUNCTUATION && p.peek().Value == "(" {
+	if p.peek().Token == reylangpb.TokenType_LPAREN {
 		p.next() // Skip "("
 		var args []*reylangpb.Node
-		for !p.match(reylangpb.TokenType_PUNCTUATION) || p.peek().Value != ")" {
+		for p.peek().Token != reylangpb.TokenType_RPAREN {
 			arg, err := p.parse()
 			if err != nil {
 				return nil, err
 			}
 			args = append(args, arg)
 
-			if p.peek().Token == reylangpb.TokenType_PUNCTUATION && p.peek().Value == "," {
+			if p.peek().Token == reylangpb.TokenType_COMMA {
 				p.next() // Skip ","
 			}
 		}
